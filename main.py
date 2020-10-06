@@ -1,3 +1,4 @@
+from pprint import pprint
 from time import sleep
 import requests
 from dotenv import load_dotenv
@@ -6,7 +7,7 @@ from os import getenv
 load_dotenv()
 
 TOKEN = getenv('token')
-URL = URL = f"https://api.telegram.org/bot{TOKEN}/"
+URL = f"https://api.telegram.org/bot{TOKEN}/"
 
 
 def get_updates_json(request):
@@ -16,7 +17,7 @@ def get_updates_json(request):
 
 
 def last_update(data):
-    print(data)
+    # pprint(data)
     results = data['result']
     total_updates = len(results) - 1
     return results[total_updates]
@@ -25,6 +26,12 @@ def last_update(data):
 def get_chat_id(update):
     chat_id = update['message']['chat']['id']
     return chat_id
+
+
+def is_this_bot_command(data):
+    messages = len(data['result'])
+    if data['result'][messages - 1]['message']['entities'][0]['type'] == 'bot_command':
+        return True
 
 
 def send_mess(chat, text):
@@ -37,7 +44,8 @@ def main():
     update_id = last_update(get_updates_json(URL))['update_id']
     while True:
         if update_id == last_update(get_updates_json(URL))['update_id']:
-            send_mess(get_chat_id(last_update(get_updates_json(URL))), 'привет')
+            is_this_bot_command(get_updates_json(URL))
+            # send_mess(get_chat_id(last_update(get_updates_json(URL))), 'Привет')
             update_id += 1
         sleep(1)
 
